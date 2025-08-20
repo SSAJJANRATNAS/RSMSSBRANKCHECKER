@@ -6,18 +6,9 @@
     <title>Kalam Academy Quiz</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #6a11cb;
-            --secondary-color: #2575fc;
-            --correct-color: #2ecc71;
-            --incorrect-color: #e74c3c;
-            --bg-color: #f4f4f4;
-            --text-color: #2c3e50;
-        }
-
         body {
             font-family: 'Noto Sans Devanagari', 'Noto Sans', Arial, sans-serif;
-            background-color: var(--bg-color);
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
@@ -34,7 +25,7 @@
 
         .quiz-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-start;
             align-items: center;
             margin-bottom: 20px;
         }
@@ -114,7 +105,7 @@
             margin-top: 20px;
         }
 
-        #submit-btn, #restart-btn, #toggle-theme {
+        #submit-btn, #restart-btn {
             background: #2575fc;
             color: white;
             border: none;
@@ -125,7 +116,7 @@
             margin-left: 10px;
         }
 
-        #submit-btn:hover, #restart-btn:hover, #toggle-theme:hover {
+        #submit-btn:hover, #restart-btn:hover {
             background: #6a11cb;
         }
 
@@ -164,54 +155,22 @@
             font-size: 1.3rem;
             font-weight: bold;
         }
-
-        /* Fancy Theme (optional toggle) */
-        body.fancy {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-        }
-
-        body.fancy .quiz-container {
-            background: white;
-            color: var(--text-color);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        }
-
-        body.fancy .brand-text h2 {
-            color: var(--secondary-color);
-        }
-
-        body.fancy .option {
-            background: #fff;
-            border: 1px solid #ddd;
-        }
-
-        body.fancy .option:hover {
-            background: #f0f8ff;
-        }
-
-        body.fancy #submit-btn,
-        body.fancy #restart-btn,
-        body.fancy #toggle-theme {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        }
     </style>
 </head>
 <body>
     <div class="quiz-container">
         <div class="quiz-header">
             <div class="branding">
-                <img src="logo.png" alt="Institute Logo" class="logo">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhsCRKTw5bUd2GNHFMPKl834utVgjdOOhlUJSnKDBw2MZPXIRTNlbDF1gUxd10IQQ63gW7BxO5oxsRoxJpG2a-Yqvh0t5Js__zsNB5RO4P4uRDnwoaXMXEbUxFh5NDeg9lY6RCChetgMsdBPvgtCuzyvurM0J7ZK9q4fRMfmU95yBwcaKKdwR1trVLB8TnJ/s1563/1000173352.png" alt="Institute Logo" class="logo">
                 <div class="brand-text">
-                    <h2 id="quiz-title">📘 Kalam Academy, Sikar</h2>
+                    <h2 id="quiz-title">L1 Factory Academy</h2>
                     <p class="tagline">Rajasthan Teacher Vacancy Preparation</p>
                     <p class="telegram">
                         Join our Telegram: 
-                        <a href="https://t.me/KalamAcademy" target="_blank">@KalamAcademy</a>
+                        <a href="https://t.me/l1_factory_Academy" target="_blank">@l1_factory_Academy</a>
                     </p>
                 </div>
             </div>
-            <button id="toggle-theme">Switch Theme</button>
         </div>
         <div class="quiz-body">
             <div id="progress"></div>
@@ -319,10 +278,6 @@
 
         submitBtn.addEventListener("click", showResults);
         restartBtn.addEventListener("click", restartQuiz);
-
-        document.getElementById("toggle-theme").addEventListener("click", () => {
-            document.body.classList.toggle("fancy");
-        });
 
         loadQuestion();
     </script>
