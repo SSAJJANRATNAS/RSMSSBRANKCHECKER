@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>राजस्थान जीके क्विज़</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --correct-color: #2ecc71;
+            --incorrect-color: #e74c3c;
+            --bg-color: #ecf0f1;
+            --text-color: #34495e;
+            --light-bg: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .quiz-container {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        #progress {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .quiz-body {
+            padding: 2rem;
+        }
+
+        #question {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .options-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option {
+            background-color: var(--bg-color);
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            width: 100%;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+
+        .option:hover {
+            border-color: var(--primary-color);
+        }
+
+        .option.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* For review screen */
+        .option.correct {
+            background-color: var(--correct-color);
+            color: white;
+        }
+        
+        .option.incorrect {
+            background-color: var(--incorrect-color);
+            color: white;
+        }
+
+        .quiz-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 2rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #submit-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #submit-btn:hover {
+            background-color: #3d5063;
+        }
+        
+        .results-container {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .results-container h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-summary {
+            display: flex;
+            justify-content: space-around;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .summary-item {
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            width: 150px;
+            margin: 10px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .summary-item h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .summary-item p {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .score {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .correct {
+             background-color: #e8f5e9;
+             color: var(--correct-color);
+        }
+        
+        .incorrect {
+            background-color: #ffebee;
+            color: var(--incorrect-color);
+        }
+        
+        .unanswered {
+            background-color: #f3e5f5;
+            color: #8e44ad;
+        }
+
+        #restart-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 2rem;
+            transition: background-color 0.3s ease;
+        }
+        
+        #restart-btn:hover {
+            background-color: #2980b9;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz-container">
+        <div class="quiz-header">
+            <h2>राजस्थान जीके क्विज़</h2>
+            <p id="progress"></p>
+        </div>
+        <div class="quiz-body">
+            <h3 id="question">प्रश्न यहाँ लोड होगा...</h3>
+            <div id="options-container" class="options-list">
+                </div>
+        </div>
+        <div class="quiz-footer">
+            <button id="submit-btn">अगला प्रश्न</button>
+        </div>
+    </div>
+    
+    <div class="quiz-container" id="results-container" style="display:none;">
+        <h2>क्विज़ परिणाम</h2>
+        <div class="results-summary">
+            <div class="summary-item score">
+                <h3>कुल स्कोर</h3>
+                <p id="total-score">0</p>
+            </div>
+            <div class="summary-item correct">
+                <h3>सही जवाब</h3>
+                <p id="correct-answers">0</p>
+            </div>
+            <div class="summary-item incorrect">
+                <h3>गलत जवाब</h3>
+                <p id="incorrect-answers">0</p>
+            </div>
+            <div class="summary-item unanswered">
+                <h3>छोड़े गए</h3>
+                <p id="unanswered-questions">0</p>
+            </div>
+        </div>
+        <button id="restart-btn">फिर से शुरू करें</button>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                "id": 1,
+                "question": "कौनसी नदी 'वराह/लसावरी' नदी के उपनाम से जानी जाती है?",
+                "options": [
+                "रूपारेल",
+                "रूपनगढ़",
+                "साबी",
+                "मेंढ़ा"
+                ],
+                "answer": "रूपारेल"
+            },
+            {
+                "id": 2,
+                "question": "निम्नलिखित वक्तव्यों पर विचार करें-\n* इस नदी का उदगम नया सानवारा नामक स्थान से होता है।\n* इस नदी पर स्वरूपगंज (सिरोही) में बनास बाँध बना हुआ है।\nउपर्युक्त विशेषताएँ किस नदी को इंगित करती है-",
+                "options": [
+                "माही",
+                "पश्चिमी बनास",
+                "साबरमती",
+                "सीपू"
+                ],
+                "answer": "पश्चिमी बनास"
+            },
+            {
+                "id": 3,
+                "question": "चम्बल नदी के संदर्भ में निम्न कथनों पर विचार कर सत्य कूट की पहचान करें-\n* यह राजस्थान की सबसे लम्बी व एकमात्र बारहमासी नदी है।\n* यह चित्तौड़गढ़ से कोटा के मध्य एक संकड़े गॉर्ज से होकर बहती है।\n* उत्तर प्रदेश के मुरादगंज के निकट यह नदी यमुना नदी से मिलती है।\n* इस नदी पर जवाहर सागर बाँध केवल सिंचाई आपूर्ति हेतु निर्मित किया गया है।",
+                "options": [
+                "केवल 1, 2 व 4",
+                "केवल 1, 2 व 3",
+                "केवल 3 व 4",
+                "केवल 1 व 2"
+                ],
+                "answer": "केवल 1, 2 व 3"
+            },
+            {
+                "id": 4,
+                "question": "निम्नलिखित में कौनसा युग्म (नदी-सहायक नदी) सही सुमेलित नहीं है-",
+                "options": [
+                "मेज-घोड़ा पछाड़",
+                "बेडच-ओराई",
+                "सोम-सीपू/सकली",
+                "माही-हरण"
+                ],
+                "answer": "सोम-सीपू/सकली"
+            },
+            {
+                "id": 5,
+                "question": "लूनी नदी के संदर्भ में असत्य कथन का चुनाव कीजिए-",
+                "options": [
+                "यह अपने उद्गम स्थल पर सागरमती के नाम से जानी जाती है।",
+                "इस नदी बेसिन की पूरी सीमा 'काला भूरा-डूंगर' है।",
+                "यह राज्य के कुल अपवाह का 8.4% भाग रखती है।",
+                "जोधपुर में इस नदी पर पिचियाक बांध बना हुआ है।"
+                ],
+                "answer": "इस नदी बेसिन की पूरी सीमा 'काला भूरा-डूंगर' है।"
+            },
+            {
+                "id": 6,
+                "question": "सूची-I को सूची-II से सुमेलित कीजिए-\n| सूची-I (नदी) | सूची-II (उद्गम स्थल) |\n| :--- | :--- |\n| (A) बाणगंगा | 1. बागली गाँव, देवास |\n| (B) कोठारी | 2. मेहंद झील, अमरोरू |\n| (C) माही | 3. दिवेर की पहाड़ियाँ |\n| (D) कालीसिंध | 4. बैराठ की पहाड़ियाँ |",
+                "options": [
+                "A-1, B-2, C-3, D-4",
+                "A-4, B-3, C-2, D-1",
+                "A-4, B-2, C-1, D-3",
+                "A-4, B-3, C-1, D-2"
+                ],
+                "answer": "A-4, B-3, C-2, D-1"
+            },
+            {
+                "id": 7,
+                "question": "राजमहल (टोंक) के निकट त्रिवेणी संगम निर्मित करने वाली नदियों के उपयुक्त समुच्चय की पहचान करें-",
+                "options": [
+                "बेडच, गंभीरी, कोठारी",
+                "चम्बल, बनास, सीप",
+                "बनास, बेडच, मेनाल",
+                "बनास, डाई, खारी"
+                ],
+                "answer": "बनास, डाई, खारी"
+            },
+            {
+                "id": 8,
+                "question": "दक्षिणी-पूर्वी पठारी प्रदेश स्थित 'त्रिकोणीय कृषि बेसिन' का निर्माण करने वाली नदियों के उपयुक्त समुच्चय का चयन करें?",
+                "options": [
+                "चम्बल, बनास व सीप",
+                "परवन, पार्वती व निवाज",
+                "चंबल, कालीसिंध व पार्वती",
+                "कालीसिंध, आहू व गोमती"
+                ],
+                "answer": "चंबल, कालीसिंध व पार्वती"
+            },
+            {
+                "id": 9,
+                "question": "निम्नलिखित नदियों में जलग्रहण क्षेत्र का सही अवरोही क्रम क्या है?\n1. बनास\n2. माही\n3. लूनी\n4. बाणगंगा",
+                "options": [
+                "1, 3, 2, 4",
+                "1, 2, 3, 4",
+                "4, 2, 3, 1",
+                "2, 1, 4, 3"
+                ],
+                "answer": "1, 3, 2, 4"
+            },
+            {
+                "id": 10,
+                "question": "“नाडा” क्या है -",
+                "options": [
+                "पश्चिमी राजस्थान में आधुनिक जल सरंक्षण तकनीक।",
+                "गोचरभूमि क्षेत्र में बालूका स्तूपों के मध्य की निम्न भूमि।",
+                "जल के बहाव के मार्ग में वर्षा जल संग्रहण हेतु बनाया गया कुण्ड।",
+                "शेखावाटी के अन्तःप्रवाही क्षेत्र में निर्मित कच्चे जल स्त्रोत।"
+                ],
+                "answer": "पश्चिमी राजस्थान में आधुनिक जल सरंक्षण तकनीक।"
+            },
+            {
+                "id": 11,
+                "question": "निम्नलिखित में से सांभर झील में गिरने वाली प्रमुख जलधाराऐं है-\nक. खारी\nख. रूपनगढ़\nग. मेंथा\nघ. खण्डेल",
+                "options": [
+                "केवल 3 व 4",
+                "केवल 2 व 3",
+                "1, 2, 3 व 4",
+                "केवल 1 व 4"
+                ],
+                "answer": "1, 2, 3 व 4"
+            },
+            {
+                "id": 12,
+                "question": "निम्नलिखित (झील-अवस्थिति) में से सही सुमेलित युग्म की पहचान कीजिए -",
+                "options": [
+                "अनूप सागर - जैसलमेर",
+                "मांडलताल - झालावाड़",
+                "सरदार समन्द - जोधपुर",
+                "गैब सागर - डूंगरपुर"
+                ],
+                "answer": "गैब सागर - डूंगरपुर"
+            },
+            {
+                "id": 13,
+                "question": "पचपदरा झील के सन्दर्भ में निम्न वक्तव्यों पर विचार कर असत्य की पहचान करें-\nI. इस झील के नमक के क्रिस्टल बनाने के लिए मोथिया झाड़ी की टहनियों का प्रयोग करते है।\nII. इससे उत्तम श्रेणी का नमक तैयार होता है।",
+                "options": [
+                "केवल I",
+                "केवल II",
+                "I व II दोनों",
+                "न तो I व न ही II"
+                ],
+                "answer": "केवल I"
+            },
+            {
+                "id": 14,
+                "question": "निम्नलिखित में से किस झील से सिंचाई हेतु श्यामपुरा व भाट नहरें निकाली गई है?",
+                "options": [
+                "फोय-सागर",
+                "पुष्कर",
+                "जयसमन्द",
+                "पिछोला"
+                ],
+                "answer": "जयसमन्द"
+            },
+            {
+                "id": 15,
+                "question": "महाराजा विनय सिंह द्वारा निर्मित झील जो वर्तमान में 'लेक पैलेस होटल' के रूप में संचालित है-",
+                "options": [
+                "मानसागर",
+                "सिलीसेढ़",
+                "मावठा",
+                "नघ्रताल"
+                ],
+                "answer": "सिलीसेढ़"
+            },
+            {
+                "id": 16,
+                "question": "निम्नलिखित में से कौनसा सुमेलित नहीं है?",
+                "options": [
+                "लहासी बाँध - बूँदी",
+                "सावन भादो बाँध - कोटा",
+                "ओराई बाँध - चित्तौड़गढ़",
+                "अजान बाँध - भरतपुर"
+                ],
+                "answer": "लहासी बाँध - बूँदी"
+            },
+            {
+                "id": 17,
+                "question": "'हकरा' क्या है?",
+                "options": [
+                "काँतली नदी का बेसिन",
+                "रूपनगढ़ नदी का उपनाम",
+                "एक लवणीय झील",
+                "घग्घर नदी का अपवाह क्षेत्र"
+                ],
+                "answer": "घग्घर नदी का अपवाह क्षेत्र"
+            },
+            {
+                "id": 18,
+                "question": "निम्न में से जसवंत सागर बाँध किस तहसील में स्थित है?",
+                "options": [
+                "बीगोंद",
+                "बिलाड़ा",
+                "सरवाड़ा",
+                "सुमेरपुर"
+                ],
+                "answer": "बिलाड़ा"
+            },
+            {
+                "id": 19,
+                "question": "ढोला मारू रा दूहा किस प्रकार का काव्य है?",
+                "options": [
+                "लौकिक काव्य",
+                "ख्यात काव्य",
+                "सामाजिक काव्य",
+                "धार्मिक काव्य"
+                ],
+                "answer": "लौकिक काव्य"
+            },
+            {
+                "id": 20,
+                "question": "निम्नलिखित में से (लेखक व रचना) कौनसा युग्म सही सुमेलित नहीं है-",
+                "options": [
+                "जसवंत सिंह - भाषा भूषण",
+                "वीरभाण - वीरमायण",
+                "श्यामलदास - वीरविनोद",
+                "ईसरदास - हरिदास"
+                ],
+                "answer": "वीरभाण - वीरमायण"
+            },
+            {
+                "id": 21,
+                "question": "निम्न में से महाराजा सूरजमल के युद्धों का वर्णन किस कृति में वर्णित है?",
+                "options": [
+                "सुजान लावणी",
+                "सुजाण चरित्र",
+                "सूदन",
+                "नेह तरंग"
+                ],
+                "answer": "सुजाण चरित्र"
+            },
+            {
+                "id": 22,
+                "question": "निम्न में से मध्यकालीन जैन साहित्य की रचना 'पिंगल शिरोमणि' के लेखक है?",
+                "options": [
+                "कुशललाभ",
+                "कवि छींदल",
+                "समय सुंदर",
+                "हेमपाल सुरि"
+                ],
+                "answer": "कुशललाभ"
+            },
+            {
+                "id": 23,
+                "question": "निम्न में से कौनसी एक रचना पृथ्वीराज राठौड़ की नहीं है?",
+                "options": [
+                "हरिरस",
+                "गंगा लहरी",
+                "वेलि क्रिसन रुकमणि री",
+                "दसम भागवत रा दूहा"
+                ],
+                "answer": "हरिरस"
+            },
+            {
+                "id": 24,
+                "question": "मध्यकालीन संत साहित्यिक रचना 'परमार्थ प्रसंग' के लेखक है-",
+                "options": [
+                "नाभादास",
+                "दीन दरवेस",
+                "खेमदास",
+                "दयालदास"
+                ],
+                "answer": "दीन दरवेस"
+            },
+            {
+                "id": 25,
+                "question": "कुसुम योजना के संदर्भ में निम्नलिखित कथनों पर विचार कीजिए-\nA. कृषि विभाग द्वारा संचालित यह योजना वर्तमान में राज्य सरकार का एक फ्लेगशिप कार्यक्रम है।\nB. इसमें “घटक ए” के तहत स्वतंत्र रूप से 2 मेगावाट तक के सौर ऊर्जा संयंत्रों की स्थापना की जाती है।\nउपर्युक्त कथनों में सत्य कथन कौनसा/से है-",
+                "options": [
+                "केवल A",
+                "केवल A व B",
+                "केवल B",
+                "न तो A व न ही B"
+                ],
+                "answer": "केवल B"
+            },
+            {
+                "id": 26,
+                "question": "राजस्थान सरकार के फ्लेगशिप कार्यक्रमों में शामिल निम्न योजनाओं में से कौनसी योजना पंचायती राज विभाग द्वारा संचालित नहीं है?",
+                "options": [
+                "स्वच्छ भारत मिशन ग्रामीण",
+                "मुख्यमंत्री जल स्वावलंबन अभियान 2.0",
+                "अटल ज्ञान केन्द्र",
+                "प्रधानमंत्री ग्राम सड़क योजना"
+                ],
+                "answer": "प्रधानमंत्री ग्राम सड़क योजना"
+            },
+            {
+                "id": 27,
+                "question": "बर्तन बैंक योजना के संबंध में निम्नलिखित कथनों पर विचार कीजिए-\nA. बजट घोषणा 2025-26 की अनुपालना में बर्तन बैंक योजना की शुरूआत राज्य सरकार द्वारा 12 अप्रैल 2025 को बारां जिले से की गई।\nB. इसके अन्तर्गत प्रथम चरण में एक हजार ग्राम पंचायतों को बर्तन सेट खरीदने हेतु दो-दो लाख रुपये उपलब्ध करवाए जाएंगे।\nउपर्युक्त कथनों में से कौनसा/से कथन सत्य नहीं है-",
+                "options": [
+                "केवल A",
+                "केवल A व B",
+                "केवल B",
+                "न तो A व न ही B"
+                ],
+                "answer": "केवल B"
+            },
+            {
+                "id": 28,
+                "question": "राजस्थान पुलिस के 76वें स्थापना दिवस समारोह के दौरान घोषित 350 करोड़ के लागत वाला “सरदार पटेल सेंटर फॉर साइबर कंट्रोल एण्ड वार रूम” कहाँ स्थापित किया जाएगा?",
+                "options": [
+                "पुलिस मुख्यालय, जयपुर",
+                "पुलिस कमिश्नरेट, जोधपुर",
+                "पुलिस रेंज, अजमेर",
+                "पुलिस रेंज, बीकानेर"
+                ],
+                "answer": "पुलिस मुख्यालय, जयपुर"
+            },
+            {
+                "id": 29,
+                "question": "विश्व स्वास्थ्य दिवस के अवसर पर आयोजित निरामय राजस्थान अभियान के संदर्भ में कौनसा कथन असत्य है-",
+                "options": [
+                "यह अभियान चिकित्सा एवं स्वास्थ्य विभाग द्वारा आयोजित किया गया।",
+                "इसका आयोजन सीतापुरा, जयपुर में किया गया।",
+                "इसके तहत टाइप-1 डायबीटीज हेतु मिशन मधुहारी शुरू की गई।",
+                "इस अभियान का उद्देश्य प्रदेश के नागरिकों को बेहतर चिकित्सा एवं स्वास्थ्य सुविधाएं प्रदान करना था।"
+                ],
+                "answer": "इसका आयोजन सीतापुरा, जयपुर में किया गया।"
+            },
+            {
+                "id": 30,
+                "question": "31 मार्च 2025 को जारी हुई राजस्थान लॉजिस्टिक्स पॉलिसी का नोडल विभाग कौनसा है?",
+                "options": [
+                "सड़क परिवहन विभाग",
+                "उद्योग एवं वाणिज्य विभाग",
+                "एमएसएमई विभाग",
+                "सार्वजनिक निर्माण विभाग"
+                ],
+                "answer": "उद्योग एवं वाणिज्य विभाग"
+            },
+            {
+                "id": 31,
+                "question": "'सच्छास्त्र' का संधि विच्छेद है-",
+                "options": [
+                "सत् + शास्त्र",
+                "सत् + छात्र",
+                "सत् + छास्त्र"
+                ],
+                "answer": "सत् + शास्त्र"
+            },
+            {
+                "id": 32,
+                "question": "'यण् संधि' को दर्शाने वाला शब्द है-",
+                "options": [
+                "अंत्योदय",
+                "यथेष्ट",
+                "सख्यागमन",
+                "स्वैच्छिक"
+                ],
+                "answer": "सख्यागमन"
+            },
+            {
+                "id": 33,
+                "question": "'वध्वागमन' का संधि विच्छेद होगा-",
+                "options": [
+                "वधु + आगमन",
+                "वधू + अगमन",
+                "वधू + आगमन",
+                "वधु + गमन"
+                ],
+                "answer": "वधू + आगमन"
+            },
+            {
+                "id": 34,
+                "question": "स्वर संधि के भेद हैं-",
+                "options": [
+                "दो",
+                "तीन",
+                "चार",
+                "पाँच"
+                ],
+                "answer": "पाँच"
+            },
+            {
+                "id": 35,
+                "question": "किस विकल्प में सभी शब्द शुद्ध हैं?",
+                "options": [
+                "इन्द्रा, आर्द्र",
+                "संश्लिष्ट, आशीष",
+                "स्तनपान, मतलब",
+                "निरलम्ब, जुकाम"
+                ],
+                "answer": "संश्लिष्ट, आशीष"
+            },
+            {
+                "id": 36,
+                "question": "'आशीर्वाद' का शुद्ध रूप है-",
+                "options": [
+                "आशिर्वाद",
+                "आर्शीवाद",
+                "आशीर्वाद",
+                "आर्शिवाद"
+                ],
+                "answer": "आशीर्वाद"
+            },
+            {
+                "id": 37,
+                "question": "अशुद्ध शब्द है-",
+                "options": [
+                "दृश्य",
+                "श्रृंगार",
+                "रिमझिम",
+                "अन्तर्गत"
+                ],
+                "answer": "श्रृंगार"
+            },
+            {
+                "id": 38,
+                "question": "शुद्ध शब्द है-",
+                "options": [
+                "बुद्धिमति",
+                "इकाईयाँ",
+                "नवरात्रि",
+                "मरूद्यान"
+                ],
+                "answer": "मरूद्यान"
+            },
+            {
+                "id": 39,
+                "question": "इनमें कौनसा संधि शब्द सही नहीं है?",
+                "options": [
+                "गति + अवरोध : गत्यवरोध",
+                "प्रति + उत्तर : प्रत्यूत्तर",
+                "कटु + उक्ति : कटूक्ति",
+                "गो + एषणा : गवेषणा"
+                ],
+                "answer": "प्रति + उत्तर : प्रत्यूत्तर"
+            },
+            {
+                "id": 40,
+                "question": "किस विकल्प में अशुद्ध शब्द है?",
+                "options": [
+                "आखरी",
+                "वयोवृद्ध",
+                "जुलूस",
+                "भागीरथी"
+                ],
+                "answer": "आखरी"
+            },
+            {
+                "id": 41,
+                "question": "Which of the following is not a part of Principle of Selction?",
+                "options": [
+                "Availability",
+                "Teachability",
+                "Learnability",
+                "Popularity"
+                ],
+                "answer": "Popularity"
+            },
+            {
+                "id": 42,
+                "question": "‘How easily the instructor can explain or teach something’ refers to Principle of -",
+                "options": [
+                "Learnability",
+                "Teachability",
+                "Coverage",
+                "Range"
+                ],
+                "answer": "Teachability"
+            },
+            {
+                "id": 43,
+                "question": "The principle of ‘Learnability’ means that we select -",
+                "options": [
+                "Words or phrases that are easy for the learners to learn at their present level.",
+                "Only grammatical rules.",
+                "Similar situational words.",
+                "Complex structures"
+                ],
+                "answer": "Words or phrases that are easy for the learners to learn at their present level."
+            },
+            {
+                "id": 44,
+                "question": "The principle of Frequency suggests that we should select words or structures that –",
+                "options": [
+                "easy to spell",
+                "used in real communication repeatedly.",
+                "used on special occasion or specific situation.",
+                "are very unique and hardly used in colloquial language."
+                ],
+                "answer": "used in real communication repeatedly."
+            },
+            {
+                "id": 45,
+                "question": "Which of the following is a base of the Selection of the language material according to the numbers of the situation a word can be used?",
+                "options": [
+                "Frequency",
+                "Range",
+                "Learnability",
+                "Teachability"
+                ],
+                "answer": "Range"
+            },
+            {
+                "id": 46,
+                "question": "Pick out the pair which falls under the category of expressive or productive language skills:",
+                "options": [
+                "listening, speaking",
+                "reading, writing",
+                "listening, writing",
+                "speaking, writing."
+                ],
+                "answer": "speaking, writing."
+            },
+            {
+                "id": 47,
+                "question": "Which of the following pairs is usually described as receptive skills?",
+                "options": [
+                "Listening, speaking",
+                "Reading, writing",
+                "Listening, reading",
+                "Speaking, writing."
+                ],
+                "answer": "Listening, reading"
+            },
+            {
+                "id": 48,
+                "question": "Which of the following plays the basic role in learning a mother tongue?",
+                "options": [
+                "Motivation",
+                "Naturalness",
+                "Habit formation",
+                "Purpose"
+                ],
+                "answer": "Naturalness"
+            },
+            {
+                "id": 49,
+                "question": "‘Leading from simple to complex’ is used in the principles of:",
+                "options": [
+                "Gradation",
+                "Habit formation",
+                "Controlled vocabulary",
+                "Follow the natural way"
+                ],
+                "answer": "Gradation"
+            },
+            {
+                "id": 50,
+                "question": "Which of the following statement is incorrect?",
+                "options": [
+                "The principle of gradation means simplifying the matter.",
+                "Principle of teaching make teaching successful.",
+                "Student’s attention is not primarily focused.",
+                "The principle of gradation is concerned with the presentation of subject matter."
+                ],
+                "answer": "Student’s attention is not primarily focused."
+            }
+        ];
+
+        const questionEl = document.getElementById('question');
+        const optionsContainerEl = document.getElementById('options-container');
+        const submitBtn = document.getElementById('submit-btn');
+        const progressEl = document.getElementById('progress');
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const restartBtn = document.getElementById('restart-btn');
+
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            userAnswers.fill(null);
+            resultsContainer.style.display = 'none';
+            quizContainer.style.display = 'block';
+            submitBtn.textContent = 'अगला प्रश्न';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            // Deselect previous options
+            deselectOptions();
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionEl.innerText = currentQuestion.question;
+            progressEl.innerText = `प्रश्न ${currentQuestionIndex + 1} / ${quizData.length}`;
+            optionsContainerEl.innerHTML = '';
+
+            currentQuestion.options.forEach(optionText => {
+                const optionButton = document.createElement('button');
+                optionButton.innerText = optionText;
+                optionButton.classList.add('option');
+                optionButton.addEventListener('click', () => {
+                    // Remove 'selected' class from all options first
+                    document.querySelectorAll('.option').forEach(btn => btn.classList.remove('selected'));
+                    // Add 'selected' class to the clicked one
+                    optionButton.classList.add('selected');
+                    userAnswers[currentQuestionIndex] = optionText;
+                });
+                optionsContainerEl.appendChild(optionButton);
+            });
+            
+            // Check if there was a previously selected answer for this question
+            if(userAnswers[currentQuestionIndex]) {
+                 const options = document.querySelectorAll('.option');
+                 options.forEach(opt => {
+                     if(opt.innerText === userAnswers[currentQuestionIndex]) {
+                         opt.classList.add('selected');
+                     }
+                 });
+            }
+
+            // Change button text on the last question
+            if (currentQuestionIndex === quizData.length - 1) {
+                submitBtn.textContent = 'सबमिट करें';
+            } else {
+                submitBtn.textContent = 'अगला प्रश्न';
+            }
+        }
+
+        function deselectOptions() {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+        }
+
+        submitBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                // End of the quiz
+                showResults();
+            }
+        });
+        
+        restartBtn.addEventListener('click', startQuiz);
+
+        function showResults() {
+            let score = 0;
+            let correctCount = 0;
+            let incorrectCount = 0;
+            const negativeMark = 2 / 3;
+
+            quizData.forEach((question, index) => {
+                const userAnswer = userAnswers[index];
+                if (userAnswer === question.answer) {
+                    score += 2;
+                    correctCount++;
+                } else if (userAnswer !== null) {
+                    score -= negativeMark;
+                    incorrectCount++;
+                }
+            });
+
+            const unansweredCount = quizData.length - (correctCount + incorrectCount);
+
+            document.getElementById('total-score').innerText = score.toFixed(2);
+            document.getElementById('correct-answers').innerText = correctCount;
+            document.getElementById('incorrect-answers').innerText = incorrectCount;
+            document.getElementById('unanswered-questions').innerText = unansweredCount;
+            
+            quizContainer.style.display = 'none';
+            resultsContainer.style.display = 'block';
+        }
+
+        // Initial load
+        startQuiz();
+    </script>
+</body>
+</html>
