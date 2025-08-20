@@ -74,7 +74,25 @@
             font-size: 1rem;
             margin-bottom: 15px;
             color: #000;
-            white-space: pre-wrap; /* To preserve newlines in questions */
+            white-space: pre-wrap;
+        }
+        
+        .question-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 0.95rem;
+        }
+
+        .question-table th, .question-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .question-table th {
+            background-color: #f2f2f2;
+            font-weight: 600;
         }
 
         .option {
@@ -102,7 +120,7 @@
 
         .quiz-footer {
             display: flex;
-            justify-content: space-between; /* Adjusted for navigation */
+            justify-content: space-between;
             align-items: center;
             margin-top: 20px;
         }
@@ -129,12 +147,11 @@
 
         .results-container {
             display: none;
-            text-align: center;
+            text-align: left;
         }
 
-        .results-container h2 {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
+        .results-container h2, .results-container h3 {
+            text-align: center;
         }
 
         .results-summary {
@@ -142,6 +159,7 @@
             justify-content: space-around;
             flex-wrap: wrap;
             margin-top: 20px;
+            margin-bottom: 20px;
         }
 
         .summary-item {
@@ -150,6 +168,7 @@
             border-radius: 6px;
             padding: 15px;
             margin: 10px;
+            text-align: center;
         }
 
         .summary-item h3 {
@@ -161,6 +180,43 @@
         .summary-item p {
             font-size: 1.3rem;
             font-weight: bold;
+        }
+
+        /* Styles for the review section */
+        #review-container {
+            margin-top: 20px;
+        }
+
+        .review-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 5px solid #ccc;
+        }
+        .review-item.correct {
+            border-left-color: #28a745; /* green */
+            background-color: #f0fff4;
+        }
+        .review-item.incorrect {
+            border-left-color: #dc3545; /* red */
+            background-color: #fff5f5;
+        }
+        .review-item h4 {
+            margin-top: 0;
+            font-size: 1rem;
+            white-space: pre-wrap;
+        }
+        .review-item p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        .review-your-answer.incorrect-text {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .correct-answer-text {
+            font-weight: bold;
+            color: #28a745;
         }
     </style>
 </head>
@@ -212,17 +268,24 @@
                     <p id="unanswered-questions">0</p>
                 </div>
             </div>
+            <div id="review-container">
+                <hr>
+                <h3>Review Answers</h3>
+                <div id="review-answers-list"></div>
+            </div>
+             <div id="results-footer" style="text-align: center; margin-top: 20px;"></div>
         </div>
     </div>
 
     <script>
         const quizData = [
+            // All 50 questions from the previous step are here
             { question: `कौनसी नदी 'वराह/लसावरी' नदी के उपनाम से जानी जाती है?`, options: ["रूपारेल", "रूपनगढ़", "साबी", "मेंढ़ा", "अनुत्तरित प्रश्न"], answer: 0 },
             { question: `निम्नलिखित वक्तव्यों पर विचार करें-\n* इस नदी का उदगम नया सानवारा नामक स्थान से होता है।\n* इस नदी पर स्वरूपगंज (सिरोही) में बनास बाँध बना हुआ है।\nउपर्युक्त विशेषताएँ किस नदी को इंगित करती है-`, options: ["माही", "पश्चिमी बनास", "साबरमती", "सीपू", "अनुत्तरित प्रश्न"], answer: 1 },
             { question: `चम्बल नदी के संदर्भ में निम्न कथनों पर विचार कर सत्य कूट की पहचान करें-\n* यह राजस्थान की सबसे लम्बी व एकमात्र बारहमासी नदी है।\n* यह चित्तौड़गढ़ से कोटा के मध्य एक संकड़े गॉर्ज से होकर बहती है।\n* उत्तर प्रदेश के मुरादगंज के निकट यह नदी यमुना नदी से मिलती है।\n* इस नदी पर जवाहर सागर बाँध केवल सिंचाई आपूर्ति हेतु निर्मित किया गया है।\nकूट :`, options: ["केवल 1, 2 व 4", "केवल 1, 2 व 3", "केवल 3 व 4", "केवल 1 व 2", "अनुत्तरित प्रश्न"], answer: 1 },
             { question: `निम्नलिखित में कौनसा युग्म (नदी-सहायक नदी) सही सुमेलित नहीं है-`, options: ["मेज-घोड़ा पछाड़", "बेडच-ओराई", "सोम-सीपू/सकली", "माही-हरण", "अनुत्तरित प्रश्न"], answer: 2 },
             { question: `लूनी नदी के संदर्भ में असत्य कथन का चुनाव कीजिए-`, options: ["यह अपने उद्गम स्थल पर सागरमती के नाम से जानी जाती है।", "इस नदी बेसिन की पूरी सीमा 'काला भूरा-डूंगर' है।", "यह राज्य के कुल अपवाह का 8.4% भाग रखती है।", "जोधपुर में इस नदी पर पिचियाक बांध बना हुआ है।", "अनुत्तरित प्रश्न"], answer: 2 },
-            { question: `सूची-I को सूची-II से सुमेलित कीजिए-\n| सूची-I (नदी) | सूची-II (उद्गम स्थल) |\n| :--- | :--- |\n| (1) बाणगंगा | 1. बागली गाँव, देवास |\n| (2) कोठारी | 2. मेहंद झील, अमरोरू |\n| (3) माही | 3. दिवेर की पहाड़ियाँ |\n| (4) कालीसिंध | 4. बैराठ की पहाड़ियाँ |\nकूट :\n       A   B   C   D`, options: ["1   2   3   4", "4   3   2   1", "4   2   1   3", "4   3   1   2", "अनुत्तरित प्रश्न"], answer: 1 },
+            { question: "सूची-I को सूची-II से सुमेलित कीजिए और सही कूट का चयन करें:", isTable: true, tableData: { headers: ["सूची-I (नदी)", "सूची-II (उद्गम स्थल)"], rows: [ ["(A) बाणगंगा", "(1) बागली गाँव, देवास"], ["(B) कोठारी", "(2) मेहंद झील, अमरोरू"], ["(C) माही", "(3) दिवेर की पहाड़ियाँ"], ["(D) कालीसिंध", "(4) बैराठ की पहाड़ियाँ"] ] }, options: ["A-1, B-2, C-3, D-4", "A-4, B-3, C-2, D-1", "A-4, B-2, C-1, D-3", "A-4, B-3, C-1, D-2"], answer: 1 },
             { question: `राजमहल (टोंक) के निकट त्रिवेणी संगम निर्मित करने वाली नदियों के उपयुक्त समुच्चय की पहचान करें-`, options: ["बेडच, गंभीरी, कोठारी", "चम्बल, बनास, सीप", "बनास, बेडच, मेनाल", "बनास, डाई, खारी", "अनुत्तरित प्रश्न"], answer: 3 },
             { question: `दक्षिणी-पूर्वी पठारी प्रदेश स्थित 'त्रिकोणीय कृषि बेसिन' का निर्माण करने वाली नदियों के उपयुक्त समुच्चय का चयन करें?`, options: ["चम्बल, बनास व सीप", "परवन, पार्वती व निवाज", "चंबल, कालीसिंध व पार्वती", "कालीसिंध, आहू व गोमती", "अनुत्तरित प्रश्न"], answer: 2 },
             { question: `निम्नलिखित नदियों में जलग्रहण क्षेत्र का सही अवरोही क्रम क्या है?\n1. बनास\n2. माही\n3. लूनी\n4. बाणगंगा\nनीचे दिए गये कूट का उपयोग करके सही उत्तर चुनें-`, options: ["1, 3, 2, 4", "1, 2, 3, 4", "4, 2, 3, 1", "2, 1, 4, 3", "अनुत्तरित प्रश्न"], answer: 0 },
@@ -284,7 +347,27 @@
 
         function loadQuestion() {
             const currentQuestion = quizData[currentQuestionIndex];
-            questionEl.innerText = currentQuestion.question;
+            
+            if (currentQuestion.isTable) {
+                let tableHTML = `<p>${currentQuestion.question}</p>`;
+                tableHTML += '<table class="question-table"><thead><tr>';
+                currentQuestion.tableData.headers.forEach(header => {
+                    tableHTML += `<th>${header}</th>`;
+                });
+                tableHTML += '</tr></thead><tbody>';
+                currentQuestion.tableData.rows.forEach(row => {
+                    tableHTML += '<tr>';
+                    row.forEach(cell => {
+                        tableHTML += `<td>${cell}</td>`;
+                    });
+                    tableHTML += '</tr>';
+                });
+                tableHTML += '</tbody></table>';
+                questionEl.innerHTML = tableHTML;
+            } else {
+                questionEl.innerText = currentQuestion.question;
+            }
+
             optionsContainer.innerHTML = "";
             currentQuestion.options.forEach((opt, index) => {
                 const btn = document.createElement("button");
@@ -336,15 +419,60 @@
             document.getElementById("incorrect-answers").innerText = incorrectCount;
             document.getElementById("unanswered-questions").innerText = unanswered;
 
+            // --- REVIEW ANSWERS LOGIC ---
+            const reviewListEl = document.getElementById("review-answers-list");
+            reviewListEl.innerHTML = ""; 
+
+            quizData.forEach((q, idx) => {
+                const userAnswerIndex = userAnswers[idx];
+                const correctAnswerIndex = q.answer;
+                const isCorrect = userAnswerIndex === correctAnswerIndex;
+                const isAnswered = userAnswerIndex !== undefined && userAnswerIndex !== null;
+                
+                let statusClass = isAnswered ? (isCorrect ? 'correct' : 'incorrect') : 'unanswered';
+                
+                let reviewItemHTML = `<div class="review-item ${statusClass}">`;
+
+                let questionTextHTML = `<h4>Q${idx + 1}: ${q.question}</h4>`;
+                if(q.isTable){
+                    let tableHTML = '<table class="question-table"><thead><tr>';
+                    q.tableData.headers.forEach(header => { tableHTML += `<th>${header}</th>`; });
+                    tableHTML += '</tr></thead><tbody>';
+                    q.tableData.rows.forEach(row => {
+                        tableHTML += '<tr>';
+                        row.forEach(cell => { tableHTML += `<td>${cell}</td>`; });
+                        tableHTML += '</tr>';
+                    });
+                    tableHTML += '</tbody></table>';
+                    questionTextHTML += tableHTML;
+                }
+                reviewItemHTML += questionTextHTML;
+
+                let yourAnswerText = "Not Answered";
+                let yourAnswerClass = "";
+                if(isAnswered){
+                    yourAnswerText = q.options[userAnswerIndex];
+                    if(!isCorrect){
+                       yourAnswerClass = "incorrect-text";
+                    }
+                }
+                reviewItemHTML += `<p class="review-your-answer ${yourAnswerClass}">Your Answer: ${yourAnswerText}</p>`;
+                
+                if (!isCorrect) {
+                     reviewItemHTML += `<p class="correct-answer-text">Correct Answer: ${q.options[correctAnswerIndex]}</p>`;
+                }
+
+                reviewItemHTML += `</div>`;
+                reviewListEl.innerHTML += reviewItemHTML;
+            });
+
             quizBody.style.display = "none";
-            quizFooter.style.display = "none"; // Hide the whole footer
+            quizFooter.style.display = "none";
             resultsContainer.style.display = "block";
-            // Manually show restart button inside the results container or elsewhere
-            const resultsFooter = document.createElement('div');
-            resultsFooter.style.textAlign = 'center';
-            resultsFooter.style.marginTop = '20px';
-            resultsFooter.appendChild(restartBtn);
-            resultsContainer.appendChild(resultsFooter);
+            
+            const resultsFooterEl = document.getElementById('results-footer');
+            resultsFooterEl.innerHTML = '';
+            resultsFooterEl.appendChild(restartBtn);
             restartBtn.style.display = "inline-block";
         }
 
@@ -354,9 +482,8 @@
             quizBody.style.display = "block";
             quizFooter.style.display = "flex";
             resultsContainer.style.display = "none";
-            // Move restart button back to footer if needed, or handle its placement
-            document.querySelector('.quiz-footer').appendChild(restartBtn);
-            restartBtn.style.display = "none"; // Hide it again until results
+            quizFooter.appendChild(restartBtn);
+            restartBtn.style.display = "none";
             loadQuestion();
         }
         
